@@ -1,0 +1,40 @@
+#!/bin/sh
+Distro_Specific_temp_path="$(cd "$(dirname "$0")"; pwd)"
+Distro_Specific_path="/usr/share/my_stuff/Distro_Specific"
+my-superuser rm -rdf "${Distro_Specific_path}"
+my-superuser chown -R root:root "${Distro_Specific_temp_path}"
+
+if [ -f "$Distro_Specific_path/info" ];then
+	. "$Distro_Specific_path/info"
+else
+	distro_name_="${1:-}"
+	PACKAGER="${2:-}"
+	if [ -z "${distro_name_}" ];then
+		echo "checking your distro."
+		if [ -f /etc/os-release ];then
+			# freedesktop.org and systemd
+			. /etc/os-release
+			distro_name_="$ID"
+		elif [ -f /etc/lsb-release ];then
+			# For some versions of Debian/Ubuntu without lsb_release command
+			. /etc/lsb-release
+			distro_name_="$DISTRIB_ID"
+		else
+			# Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+			distro_name_="$(uname -s)"
+		fi
+		echo "Using ${distro_name_}"
+	fi
+
+	if ! . "${Distro_Specific_temp_path}/${distro_name_}/info" ;then
+		echo "failed to source : ${Distro_Specific_temp_path}/${distro_name_}/info"
+		if ! . "${Distro_Specific_temp_path}/arch/info" ;then
+			echo "failed to source : ${Distro_Specific_temp_path}/arch/info"
+		fi
+	fi
+fi
+echo "creating Package-managers library file."
+cat "${Distro_Specific_temp_path}"/disto_package_manager/common | my-superuser tee "${Distro_Specific_temp_path}/${distro_name_}/Package-manager" >/dev/null 2>&1
+cat "${Distro_Specific_temp_path}"/disto_package_manager/${PACKAGER}.sh | my-superuser tee -a "${Distro_Specific_temp_path}/${distro_name_}/Package-manager" >/dev/null 2>&1
+my-superuser cp -r "${Distro_Specific_temp_path}/${distro_name_}" "$Distro_Specific_path"
+
