@@ -33,7 +33,7 @@ install_parrot() {
 create_install_script() {
 	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
     my-superuser mkdir -p /usr/share/my_stuff/lib/auto_completion/
-    my-superuser ln -s /usr/share/my_stuff/lib/auto_completion/${platfrom_name}_install /usr/share/my_stuff/system_files/auto_completion/
+    my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install_auto_completion /usr/share/my_stuff/system_files/auto_completion/
 }
 
 ##############################################################################################
