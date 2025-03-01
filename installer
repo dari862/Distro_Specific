@@ -35,6 +35,11 @@ else
 fi
 echo "creating Package-managers library file."
 cat "${Distro_Specific_temp_path}"/disto_package_manager/common | my-superuser tee "${Distro_Specific_temp_path}/${distro_name_}/Package-manager" >/dev/null 2>&1
+if [ "$PACKAGER" = "yay" ]; then
+    PACKAGER="pacman"
+elif [ "$PACKAGER" = "paru" ]; then
+    PACKAGER="pacman"
+fi
 cat "${Distro_Specific_temp_path}"/disto_package_manager/${PACKAGER}.sh | my-superuser tee -a "${Distro_Specific_temp_path}/${distro_name_}/Package-manager" >/dev/null 2>&1
 my-superuser cp -r "${Distro_Specific_temp_path}/${distro_name_}" "$Distro_Specific_path"
 
