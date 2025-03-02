@@ -2,24 +2,33 @@ Package_installer_(){
 	my-superuser zypper install -y "$@"
 }
 Package_update_(){
-	my-superuser zypper refresh
+	my-superuser zypper ref
 }
 full_upgrade_(){
-	my-superuser zypper -y update
+	my-superuser zypper -y --non-interactive dup
 }
 Package_remove_(){
 	my-superuser zypper remove -y "$@"
 }
 Package_list_(){
-	for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
-	do 
-		dpkg -l | grep -e "$i"
-	done
+	:
 }
 Packages_upgrade_(){
-	my-superuser apt-get -y upgrade
+	my-superuser zypper -y upgrade
 }
-install_deb(){
-	deb_name="${1-}"
-	my-superuser apt-get install -y ${deb_name}
+Package_cleanup() {
+	my-superuser zypper clean -a
+	my-superuser zypper tidy
+	my-superuser zypper cc -a
+
+    if [ -d /var/tmp ]; then
+        my-superuser find /var/tmp -type f -atime +5 -delete
+    fi
+    if [ -d /tmp ]; then
+        my-superuser find /tmp -type f -atime +5 -delete
+    fi
+    if [ -d /var/log ]; then
+        my-superuser find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
+    fi
+    service_manager cleanup
 }

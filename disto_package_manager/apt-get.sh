@@ -1,4 +1,5 @@
 if command -v nala >/dev/null 2>&1;then
+	package_manger="nala"
 	Package_installer_(){
 		my-superuser nala install -y "$@"
 	}
@@ -14,13 +15,6 @@ if command -v nala >/dev/null 2>&1;then
 	Package_remove_(){
 		my-superuser nala purge -y "$@"
 	}
-	Package_remove_(){
-		# remove packages that can no longer be downloaded
-		my-superuser apt-get autoclean	
-		# remove packages automatically installed as dependencies and not currently
-		# dependencies of any installed packages
-		my-superuser apt autoremove
-	}
 	Package_list_(){
 		for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
 		do 
@@ -28,6 +22,7 @@ if command -v nala >/dev/null 2>&1;then
 		done
 	}
 else
+	package_manger="apt-get"
 	Package_installer_(){
 		my-superuser apt-get install -y "$@"
 	}
@@ -83,4 +78,22 @@ install_deb(){
 	deb_name="${1-}"
 	my-superuser dpkg -i ${deb_name} || my-superuser apt install -y ${deb_name} || continue
 	my-superuser apt-get install -y -f || continue
+}
+
+Package_cleanup() {
+	my-superuser "$package_manger" clean
+	my-superuser "$package_manger" autoremove -y 
+	my-superuser du -h /var/cache/apt
+      
+    if [ -d /var/tmp ]; then
+        my-superuser find /var/tmp -type f -atime +5 -delete
+    fi
+    if [ -d /tmp ]; then
+        my-superuser find /tmp -type f -atime +5 -delete
+    fi
+    if [ -d /var/log ]; then
+        my-superuser find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
+    fi
+
+    service_manager cleanup
 }

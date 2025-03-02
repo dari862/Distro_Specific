@@ -1,72 +1,42 @@
 if command -v yay >/dev/null 2>&1;then
-	Package_installer_(){
-		yay --noconfirm -S "$@"
-	}
-	Package_update_(){
-		yay -Syu --noconfirm
-	}
-	full_upgrade_(){
-		yay -Syu --noconfirm
-	}
-	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
-	}
-	Package_remove_(){
-		yay -Rs "$@"
-	}
-	Package_list_(){
-		for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
-		do 
-			dpkg -l | grep -e "$i"
-		done
-	}
+	package_manger="yay"
 elif command -v paru >/dev/null 2>&1;then
-	Package_installer_(){
-		paru --noconfirm -S "$@"
-	}
-	Package_update_(){
-		paru -Syu --noconfirm
-	}
-	full_upgrade_(){
-		paru -Syu --noconfirm
-	}
-	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
-	}
-	Package_remove_(){
-		paru -Rs "$@"
-	}
-	Package_list_(){
-		for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
-		do 
-			dpkg -l | grep -e "$i"
-		done
-	}
+	package_manger="paru"
 else
-	Package_installer_(){
-		my-superuser pacman --noconfirm -S "$@"
-	}
-	Package_update_(){
-		my-superuser pacman -Syu --noconfirm
-	}
-	full_upgrade_(){
-		my-superuser pacman -Syu --noconfirm
-	}
-	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
-	}
-	Package_remove_(){
-		my-superuser pacman -Rs "$@"
-	}
-	Package_list_(){
-		for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
-		do 
-			dpkg -l | grep -e "$i"
-		done
-	}
+	package_manger="my-superuser pacman"
 fi
 
-install_deb(){
-	deb_name="${1-}"
-	my-superuser apt-get install -y ${deb_name}
+Package_installer_(){
+	${package_manger} --noconfirm -S "$@"
+}
+Package_update_(){
+	${package_manger} -Syu --noconfirm
+}
+full_upgrade_(){
+	${package_manger} -Syu --noconfirm --needed archlinux-keyring
+	${package_manger} -Syu --noconfirm
+}
+Packages_upgrade_(){
+	${package_manger} -y upgrade
+}
+Package_remove_(){
+	${package_manger} -Rs "$@"
+}
+Package_list_(){
+	:
+}
+Package_cleanup() {
+	my-superuser "$package_manger" -Sc --noconfirm
+	my-superuser "$package_manger" -Rns "$(pacman -Qtdq)" --noconfirm > /dev/null || true
+            
+    if [ -d /var/tmp ]; then
+        my-superuser find /var/tmp -type f -atime +5 -delete
+    fi
+    if [ -d /tmp ]; then
+        my-superuser find /tmp -type f -atime +5 -delete
+    fi
+    if [ -d /var/log ]; then
+        my-superuser find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
+    fi
+    service_manager cleanup
 }

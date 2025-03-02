@@ -50,14 +50,14 @@ if [ "$distro_name_" = "debian" ];then
 	my-superuser service dnsmasq restart
 	my-superuser service resolvconf restart
 	my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop"
-	my-superuser ln -s ${_APPS_EXTRA_LIBDIR}/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop
+	my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop
 	for d in /home/*/ ; do
     	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 		# Create config folders if no exists
 		d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
 		
-		my-superuser ln -sf "${_APPS_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
+		my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
 	done
 elif [ "$distro_name_" = "ubuntu" ];then
 	Package_installer_ steam || continue
@@ -71,3 +71,4 @@ my-superuser flatpak install flathub com.github.tchx84.Flatseal
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
 my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
+/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

@@ -68,6 +68,8 @@ my-superuser flatpak remote-add --system --if-not-exists flathub https://flathub
 my-superuser flatpak install -y --noninteractive net.davidotek.pupgui2 com.usebottles.bottles
 my-superuser flatpak install flathub com.github.tchx84.Flatseal
 
+/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
 my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
