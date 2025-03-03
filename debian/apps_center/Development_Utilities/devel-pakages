@@ -7,9 +7,9 @@ Packages_are="
 	redis-tools sqlite3 libsqlite3-0 $libmysqlclient debhelper cdbs dh-make diffutils patch gnupg fakeroot lintian devscripts pbuilder dput quilt 
 "
 
-. /etc/os-release
+. "/usr/share/my_stuff/os-release"
 
-if [ "$ID" = "ubuntu" ];then
+if [ "$distro_name" = "ubuntu" ];then
 	Packages_are="${Packages_are} libmysqlclient-dev"
 fi
 

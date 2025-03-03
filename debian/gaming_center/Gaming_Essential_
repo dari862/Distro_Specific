@@ -1,33 +1,17 @@
 #!/bin/sh
 app_name="Gaming Essential"
-if [ -f /etc/os-release ];then
-    # freedesktop.org and systemd
-    . /etc/os-release
-    version_="$(echo "${VERSION_ID}" | sed 's/.//g')"
-    distro_name_="$ID"
-    distro_name_and_ver_="${ID}_${version_}"
-    version_codename="${VERSION_CODENAME}"
-elif [ -f /etc/lsb-release ];then
-    # For some versions of Debian/Ubuntu without lsb_release command
-    . /etc/lsb-release
-    distro_name_="$DISTRIB_ID"
-    distro_name_and_ver_="${DISTRIB_ID}_${DISTRIB_RELEASE}"
-else
-    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
-    distro_name_="$(uname -s)"
-    distro_name_and_ver_="$(uname -s)_$(uname -r)"
-fi
+. "/usr/share/my_stuff/os-release"
 
 SHELL_EXT="$(which gnome-shell >/dev/null 2>&1 && echo gnome-shell-extension-gamemode)"
 
 say 'add new repo ...' 1
+[ ! -d "/etc/apt/keyrings" ] && my-superuser mkdir -pm755 /etc/apt/keyrings
 if ! dpkg --list 'lutris' 2>/dev/null;then
-	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
-	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_/Release.key" "/usr/share/keyrings/lutris.gpg"
+	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_2/Release.key" "/usr/share/keyrings/lutris.gpg"
+	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_2/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
 fi
 
 if ! dpkg --list 'winehq-staging' 2>/dev/null;then
-	my-superuser mkdir -pm755 /etc/apt/keyrings
 	download_key "download" "https://dl.winehq.org/wine-builds/winehq.key" "my-superuser tee /etc/apt/keyrings/winehq-archive.key"
 	download_key "download" "https://dl.winehq.org/wine-builds/debian/dists/${version_codename}/winehq-${version_codename}.sources" "/etc/apt/sources.list.d/winehq-${version_codename}.sources"
 fi
@@ -38,10 +22,8 @@ clear
 say 'Updating new sources...' 1
 Package_update_
 
-Package_installer_ libcec6
-Package_installer_ xboxdrv
-Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue
-Package_installer_ lutris || continue                  
+Package_installer_ libcec6 xboxdrv
+Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue                
 Package_installer_ --install-recommends winehq-staging
 Package_installer_ wine wine64 wine-binfmt winetricks
 
@@ -63,10 +45,10 @@ elif [ "$distro_name_" = "ubuntu" ];then
 	Package_installer_ steam || continue
 fi
 
-Package_installer_ flatpak
-my-superuser flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-my-superuser flatpak install -y --noninteractive net.davidotek.pupgui2 com.usebottles.bottles
-my-superuser flatpak install flathub com.github.tchx84.Flatseal
+install_as_dependency flatpak
+flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub"
+flatpak_install "bottles" "com.usebottles.bottles" "nonflathub"
+flatpak_install "Flatseal" "com.github.tchx84.Flatseal"
 
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready

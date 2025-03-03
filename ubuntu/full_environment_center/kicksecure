@@ -3,8 +3,8 @@
 app_name="kicksecure"
 extra_apps_="gtk3-nocsd console-common extrepo"
 
-. /etc/os-release
-if [ "$VERSION_CODENAME" != "bookworm" ];then
+. "/usr/share/my_stuff/os-release"
+if [ "$version_codename" != "bookworm" ];then
 	echo "You need bookworm to install kicksecure."
 	exit 1
 fi

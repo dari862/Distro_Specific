@@ -122,8 +122,31 @@ failed_to_run() {
 flatpak_install() {
     __icons_="${1:-}"
     __flatpak_="${2:-}"
-    flatpak install -y flathub "${__flatpak_}"
-    my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
+    __repo_="${3:-}"
+    if [ -z "$__repo_" ];then
+    	flathub="flathub"
+    elif [ "$__repo_" = "nonflathub" ];then
+    	flathub=""
+    fi
+    
+    my-superuser flatpak install -y --noninteractive $flathub "${__flatpak_}"
+    if [ -f "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" ];then
+    	my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
+    else
+    	my-superuser tee "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" <<- EOF >/dev/null 2>&1
+    	[Desktop Entry]
+		Name=${__icons_}
+		Comment=${__icons_}
+		Exec=flatpak run ${__flatpak_}
+		Terminal=false
+		Type=Application
+		Icon=flatpak
+		Categories=GTK;
+		MimeType=text/html;text/xml;application/xhtml_xml;
+		StartupNotify=true
+		EOF
+    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" "/usr/share/applications"
+    fi
 }
 
 copy_from_extra_skel() {
