@@ -1,18 +1,19 @@
 #!/bin/sh
 app_name="Gaming Essential"
 . "/usr/share/my_stuff/os-release"
+distro_name_and_ver_3=$(printf "%s" "$distro_name_and_ver_2" | cut -c1 | tr '[:lower:]' '[:upper:]')$(printf "%s" "$distro_name_and_ver_2" | cut -c2-)
 
 SHELL_EXT="$(which gnome-shell >/dev/null 2>&1 && echo gnome-shell-extension-gamemode)"
 
 say 'add new repo ...' 1
 [ ! -d "/etc/apt/keyrings" ] && my-superuser mkdir -pm755 /etc/apt/keyrings
-if ! dpkg --list 'lutris' 2>/dev/null;then
-	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_2/Release.key" "/usr/share/keyrings/lutris.gpg"
-	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_2/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
+if ! dpkg -q lutris 2>/dev/null;then
+	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/Release.key" "/usr/share/keyrings/lutris.gpg"
+	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
 fi
 
-if ! dpkg --list 'winehq-staging' 2>/dev/null;then
-	download_key "download" "https://dl.winehq.org/wine-builds/winehq.key" "my-superuser tee /etc/apt/keyrings/winehq-archive.key"
+if ! dpkg -q winehq-staging 2>/dev/null;then
+	download_key "download" "https://dl.winehq.org/wine-builds/winehq.key" "/etc/apt/keyrings/winehq-archive.key"
 	download_key "download" "https://dl.winehq.org/wine-builds/debian/dists/${version_codename}/winehq-${version_codename}.sources" "/etc/apt/sources.list.d/winehq-${version_codename}.sources"
 fi
 
@@ -22,33 +23,29 @@ clear
 say 'Updating new sources...' 1
 Package_update_
 
-Package_installer_ libcec6 xboxdrv
+Package_installer_ libcec6 xboxdrv || continue     
 Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue                
-Package_installer_ --install-recommends winehq-staging
-Package_installer_ wine wine64 wine-binfmt winetricks
+Package_installer_ --install-recommends winehq-staging || continue     
+Package_installer_ wine wine64 wine-binfmt || continue     
 
-if [ "$distro_name_" = "debian" ];then
-	Package_installer_ libavcodec59 steam-installer mesa-vulkan-drivers libglx-mesa0:i386 mesa-vulkan-drivers:i386 libgl1-mesa-dri:i386 libgtk2.0-0:i386 dnsmasq resolvconf
-	my-superuser service dnsmasq restart
-	my-superuser service resolvconf restart
-	my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop"
-	my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop
-	for d in /home/*/ ; do
-    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
-		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		# Create config folders if no exists
-		d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
-		
-		my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
-	done
-elif [ "$distro_name_" = "ubuntu" ];then
-	Package_installer_ steam || continue
-fi
+Package_installer_ libavcodec59 steam-installer mesa-vulkan-drivers libglx-mesa0:i386 mesa-vulkan-drivers:i386 libgl1-mesa-dri:i386 libgtk2.0-0:i386 dnsmasq resolvconf || continue     
+my-superuser service dnsmasq restart || continue     
+my-superuser service resolvconf restart || continue     
+my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop" || continue     
+my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop || continue     
+for d in /home/*/ ; do
+   	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
+	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+	# Create config folders if no exists
+	d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
+	
+	my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
+done
 
-install_as_dependency flatpak
-flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub"
-flatpak_install "bottles" "com.usebottles.bottles" "nonflathub"
-flatpak_install "Flatseal" "com.github.tchx84.Flatseal"
+install_as_dependency flatpak || continue     
+flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue     
+flatpak_install "bottles" "com.usebottles.bottles" "nonflathub" || continue     
+flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
