@@ -129,7 +129,7 @@ flatpak_install() {
     	flathub=""
     fi
     
-    my-superuser flatpak install -y --noninteractive $flathub "${__flatpak_}"
+    my-superuser flatpak install -y $flathub "${__flatpak_}"
     if [ -f "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" ];then
     	my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
     else

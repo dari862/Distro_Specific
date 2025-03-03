@@ -17,6 +17,14 @@ if ! dpkg -q winehq-staging 2>/dev/null;then
 	download_key "download" "https://dl.winehq.org/wine-builds/debian/dists/${version_codename}/winehq-${version_codename}.sources" "/etc/apt/sources.list.d/winehq-${version_codename}.sources"
 fi
 
+if ! dpkg -q steam-launcher 2>/dev/null;then
+	download_key "download" "https://repo.steampowered.com/steam/archive/stable/steam.gpg" "/usr/share/keyrings/steam.gpg"
+	sudo tee /etc/apt/sources.list.d/steam-stable.list <<- 'EOF' >/dev/null 2>&1
+	deb [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam
+	deb-src [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam
+	EOF
+fi
+
 my-superuser dpkg --add-architecture i386
 
 clear
@@ -28,7 +36,8 @@ Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue
 Package_installer_ --install-recommends winehq-staging || continue     
 Package_installer_ wine wine64 wine-binfmt || continue     
 
-Package_installer_ libavcodec59 steam-installer mesa-vulkan-drivers libglx-mesa0:i386 mesa-vulkan-drivers:i386 libgl1-mesa-dri:i386 libgtk2.0-0:i386 dnsmasq resolvconf || continue     
+Package_installer_ libavcodec59 steam-installer mesa-vulkan-drivers libglx-mesa0:i386 mesa-vulkan-drivers:i386 libgtk2.0-0:i386 dnsmasq resolvconf || continue     
+Package_installer_ libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386  libgl1-mesa-glx:amd64 libgl1-mesa-glx:i386 steam-launcher || continue     
 my-superuser service dnsmasq restart || continue     
 my-superuser service resolvconf restart || continue     
 my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop" || continue     
