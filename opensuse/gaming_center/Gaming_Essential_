@@ -1,0 +1,3 @@
+#!/bin/sh -e
+say 'Installing package...' 1
+Package_installer_ -y wine dbus git lutris

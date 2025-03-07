@@ -1,0 +1,4 @@
+#!/bin/sh -e
+app_name="code"
+say "Installing ${app_name}..." 1
+Package_installer_ visual-studio-code-bin

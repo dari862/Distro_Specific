@@ -51,7 +51,6 @@ for d in /home/*/ ; do
 	my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
 done
 
-install_as_dependency flatpak || continue     
 flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue     
 flatpak_install "bottles" "com.usebottles.bottles" "nonflathub" || continue     
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     

@@ -120,6 +120,10 @@ failed_to_run() {
 }
 
 flatpak_install() {
+	if ! command -v flatpak >/dev/null 2>&1;then
+		say 'Installing flatpak...' 1
+		install_as_dependency flatpak
+	fi
     __icons_="${1:-}"
     __flatpak_="${2:-}"
     __repo_="${3:-}"

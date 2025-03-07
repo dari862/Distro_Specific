@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+say 'Adding Repo...' 1
+import_key "https://rpm.librewolf.net/pubkey.gpg"
+my-superuser zypper ar -ef https://rpm.librewolf.net librewolf
+
+say 'Updating Repo...' 1
+Package_update_
+
+say 'Installing package...' 1
+Package_installer_ librewolf

@@ -1,11 +1,8 @@
 #!/bin/sh
-
 app_name="heroic"
-
 if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	say 'Updating sources...' 1
-	Distrobox_Package_update_
-	
+	Distrobox_Package_update_	
 	clear
 	say 'Installing package...' 1
 	Distrobox_package_installer_ ${app_name} || continue
@@ -13,10 +10,7 @@ if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 else
 	say 'Updating sources...' 1
 	Package_update_
-	
 	clear
-	
 	say 'Installing package...' 1
-	
 	my-superuser flatpak install flathub com.discordapp.Discord
 fi

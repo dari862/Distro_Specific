@@ -1,12 +1,15 @@
 Package_installer_(){
 	my-superuser zypper install -y "$@"
 }
+
 Package_update_(){
 	my-superuser zypper ref
 }
+
 full_upgrade_(){
 	my-superuser zypper -y --non-interactive dup
 }
+
 Package_remove_(){
 	my-superuser zypper remove -y "$@"
 }
@@ -31,4 +34,28 @@ Package_cleanup() {
         my-superuser find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
     fi
     service_manager cleanup
+}
+
+enable_repo() {
+  REPO_ID="${1:-}"
+  if [ "$(zypper repolist enabled 2>/dev/null | grep -c "$REPO_ID")" -le 0 ]; then
+    say "$REPO_ID repository is not enabled. Enabling now..."
+    my-superuser zypper config-manager --set-enabled "$REPO_ID"
+    my-superuser zypper makecache
+    if [ "$(zypper repolist enabled 2>/dev/null | grep -c "$REPO_ID")" -le 0 ]; then
+      failed_to_run "Failed to enable $REPO_ID repository..."
+    fi
+  fi
+}
+
+add_repo() {
+	REPO_ID="${1:-}"
+	say "Adding $REPO_ID repository..."
+	my-superuser zypper addrepo ${REPO_ID}
+}
+
+import_key() {
+	url="${1:-}"
+	say "importing $url key..."
+	my-superuser rpm --import ${url}
 }

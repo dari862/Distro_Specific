@@ -20,7 +20,13 @@ Packages_upgrade_(){
 	${package_manger} -y upgrade
 }
 Package_remove_(){
-	${package_manger} -Rs "$@"
+	packges="$@"
+	for packge in $packges;do
+		if ${package_manger} -Q | grep -q "packge "; then
+			packges="$packges $packge"
+		fi
+	done
+	${package_manger} -Rdd --noconfirm $packges
 }
 Package_list_(){
 	:
@@ -39,4 +45,16 @@ Package_cleanup() {
         my-superuser find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
     fi
     service_manager cleanup
+}
+
+enable_repo() {
+  REPO_ID="${1:-}"
+  REPO_ID="${1:-}"
+  SigLevel="${3:-Never}"
+	if ! grep -q "^\s*\[$REPO_ID\]" /etc/pacman.conf; then
+		say "Adding jupiter-staging to pacman repositories..."
+		echo "[$REPO_ID]" | my-superuser tee -a /etc/pacman.conf
+		echo "Server = https://steamdeck-packages.steamos.cloud/archlinux-mirror/\$repo/os/\$arch" | my-superuser tee -a /etc/pacman.conf
+		echo "SigLevel = $SigLevel" | my-superuser tee -a /etc/pacman.conf
+	fi
 }

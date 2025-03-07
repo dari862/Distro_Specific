@@ -9,7 +9,7 @@ print_purple() {
 	printf "\033[1;35m${_msg_}\033[0m"
 }
 
-LIST="${HOME}/.deb_pkglist_${_hostname}"
+LIST="${HOME}/pkglist_${_hostname}"
 
 # Generate list
 if [ "$opt_" = "-l" ];then

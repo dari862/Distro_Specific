@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+say 'Adding Repo...' 1
+getURL '2term' 'https://rpm.librewolf.net/librewolf-repo.repo' | my-superuser tee /etc/yum.repos.d/librewolf.repo > /dev/null
+
+say 'Installing package...' 1
+Package_installer_ librewolf

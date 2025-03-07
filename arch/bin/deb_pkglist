@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+. "/usr/share/my_stuff/Distro_Specific/info"
 
 opt_="${1-}"
 _hostname="$(hostname)"
@@ -14,10 +15,10 @@ LIST="${HOME}/.deb_pkglist_${_hostname}"
 # Generate list
 if [ "$opt_" = "-l" ];then
 	print_purple "\n==> Show list of installed packages\n"
-	dpkg-query -l 
+	${PACKAGER} -Q 2>/dev/null
 else
 	print_purple "\n==> Generate list of installed packages\n"
-	dpkg-query -f '${binary:Package}\n' -W > "$LIST"
+	${PACKAGER} -Q 2>/dev/null > "$LIST"
 	echo " List genrated at = ${LIST}"
 fi
 # To re-install packages from a list:

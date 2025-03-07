@@ -1,7 +1,8 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 
-echo "cleaning apt"
-my-superuser apt-get -y autoremove
-my-superuser apt-get -y autoclean
-echo "apt cleaned."
+echo "cleaning dnf"
+my-superuser dnf clean -a
+my-superuser dnf tidy
+my-superuser dnf cc -a
+echo "dnf cleaned."
